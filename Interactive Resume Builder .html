@@ -1,0 +1,29 @@
+<form id="resume-form">
+  <input type="text" id="name" placeholder="Your Name" required />
+  <input type="email" id="email" placeholder="Your Email" required />
+  <!-- Add other fields for the resume data -->
+  <button type="submit">Save</button>
+</form>
+
+<div id="resume-preview">
+  <!-- The live preview of the resume will be rendered here -->
+</div>
+
+<script>
+  document.getElementById('resume-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    // Handle other form fields
+
+    // Update the live preview
+    const preview = document.getElementById('resume-preview');
+    preview.innerHTML = `
+      <h1>${name}</h1>
+      <p>${email}</p>
+      <!-- Render other resume data -->
+    `;
+
+    // Here you would also handle saving the data to local storage or a database
+  });
+</script>
