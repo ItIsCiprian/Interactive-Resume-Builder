@@ -1,29 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Resume Builder</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
 <form id="resume-form">
   <input type="text" id="name" placeholder="Your Name" required />
   <input type="email" id="email" placeholder="Your Email" required />
-  <!-- Add other fields for the resume data -->
-  <button type="submit">Save</button>
+  <input type="tel" id="phone" placeholder="Your Phone Number" required />
+  <textarea id="bio" placeholder="Short Bio"></textarea>
+  <input type="text" id="skill" placeholder="Add a Skill" />
+  <button type="button" onclick="addSkill()">Add Skill</button>
+  <ol id="skills-list"></ol>
+  <textarea id="education" placeholder="Education Background"></textarea>
+  <textarea id="experience" placeholder="Work Experience"></textarea>
+  <button type="submit">Save Resume</button>
 </form>
 
 <div id="resume-preview">
   <!-- The live preview of the resume will be rendered here -->
 </div>
 
-<script>
-  document.getElementById('resume-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
-    // Handle other form fields
-
-    // Update the live preview
-    const preview = document.getElementById('resume-preview');
-    preview.innerHTML = `
-      <h1>${name}</h1>
-      <p>${email}</p>
-      <!-- Render other resume data -->
-    `;
-
-    // Here you would also handle saving the data to local storage or a database
-  });
-</script>
+<script src="script.js"></script>
+</body>
+</html>
