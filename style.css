@@ -1,24 +1,28 @@
+/* General styling for the entire body to provide consistent font and spacing. */
 body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
+  font-family: Arial, sans-serif; /* Sets a clean and modern font for the page. */
+  margin: 20px; /* Provides spacing around the entire content of the page. */
 }
 
+/* Specific styles for the resume form area to structure spacing. */
 #resume-form {
-  margin-bottom: 20px;
+  margin-bottom: 20px; /* Extra space below the form for separation from subsequent content. */
 }
 
+/* Uniform styles for text-based input fields and textarea, enhancing form usability. */
 input[type="text"],
 input[type="email"],
 input[type="tel"],
 textarea {
-  width: 100%;
-  padding: 8px;
-  margin: 10px 0;
-  box-sizing: border-box;
+  width: 100%; /* Ensures these elements take full width of their container for better alignment. */
+  padding: 8px; /* Adds space inside the elements, making text easier to read. */
+  margin: 10px 0; /* Adds vertical spacing to separate form elements. */
+  box-sizing: border-box; /* Includes padding and border in the element's total width and height. */
 }
 
+/* Styles for the preview area of the resume to differentiate it from other content. */
 #resume-preview {
-  border: 1px solid #ccc;
-  padding: 20px;
-  background-color: #f9f9f9;
+  border: 1px solid #ccc; /* Subtle border for visual distinction. */
+  padding: 20px; /* Padding inside the preview box, creating space around the displayed content. */
+  background-color: #f9f9f9; /* Light gray background to offset the preview from the rest of the page. */
 }
