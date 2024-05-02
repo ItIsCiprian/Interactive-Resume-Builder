@@ -4,7 +4,7 @@
  * and optionally saves the data to local storage.
  */
 document.getElementById('resume-form').addEventListener('submit', function(e) {
-    e.preventDefault(); // Stops the form from submitting normally.
+    e.preventDefault(); // Prevents the form from submitting normally.
 
     // Gather input values from the form.
     const formData = {
