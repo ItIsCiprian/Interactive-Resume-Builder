@@ -1,60 +1,76 @@
-/**
- * Sets up the form submission handler for the resume form.
- * Prevents default submission, gathers form data, updates the preview,
- * and optionally saves the data to local storage.
- */
-document.getElementById('resume-form').addEventListener('submit', function(e) {
-    e.preventDefault(); // Prevents the form from submitting normally.
-
-    // Gather input values from the form.
-    const formData = {
-        name: document.getElementById('name').value,
-        email: document.getElementById('email').value,
-        phone: document.getElementById('phone').value,
-        bio: document.getElementById('bio').value,
-        education: document.getElementById('education').value,
-        experience: document.getElementById('experience').value,
-        skills: Array.from(document.querySelectorAll('#skills-list li')).map(item => item.textContent)
-    };
-
-    // Update the resume preview with the gathered data.
-    updateResumePreview(formData);
-
-    // Save the form data to local storage for persistence.
-    localStorage.setItem('resumeData', JSON.stringify(formData));
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('resume-form');
+    form.addEventListener('submit', handleFormSubmit);
 });
 
-/**
- * Updates the content of the resume preview area.
- * @param {Object} formData - Contains all the resume data collected from the form.
- */
+function handleFormSubmit(e) {
+    e.preventDefault();
+    const formData = collectFormData();
+    updateResumePreview(formData);
+    saveToLocalStorage('resumeData', formData);
+}
+
+function collectFormData() {
+    return {
+        name: getValue('name'),
+        email: getValue('email'),
+        phone: getValue('phone'),
+        bio: getValue('bio'),
+        education: getValue('education'),
+        experience: getValue('experience'),
+        skills: getSkills()
+    };
+}
+
+function getValue(id) {
+    const element = document.getElementById(id);
+    return element ? element.value : '';
+}
+
+function getSkills() {
+    const items = document.querySelectorAll('#skills-list li');
+    return Array.from(items, item => item.textContent);
+}
+
 function updateResumePreview(formData) {
     const preview = document.getElementById('resume-preview');
-    preview.innerHTML = `
-        <h1>${formData.name}</h1>
-        <p>${formData.email}</p>
-        <p>${formData.phone}</p>
-        <p>${formData.bio}</p>
+    preview.innerHTML = generatePreviewHTML(formData);
+}
+
+function generatePreviewHTML(data) {
+    return `
+        <h1>${data.name}</h1>
+        <p>${data.email}</p>
+        <p>${data.phone}</p>
+        <p>${data.bio}</p>
         <h2>Skills</h2>
-        <ul>${formData.skills.map(skill => `<li>${skill}</li>`).join('')}</ul>
+        <ul>${data.skills.map(skill => `<li>${skill}</li>`).join('')}</ul>
         <h2>Education</h2>
-        <p>${formData.education}</p>
+        <p>${data.education}</p>
         <h2>Experience</h2>
-        <p>${formData.experience}</p>
+        <p>${data.experience}</p>
     `;
 }
 
-/**
- * Adds a new skill to the skills list in the form and updates the skills preview.
- * Clears the input field after the skill is added.
- */
+function saveToLocalStorage(key, data) {
+    localStorage.setItem(key, JSON.stringify(data));
+}
+
+document.getElementById('add-skill-button').addEventListener('click', addSkill);
+
 function addSkill() {
     const skillInput = document.getElementById('skill');
-    const skill = skillInput.value.trim();
-    if (skill) {
-        const newListElement = document.createElement('li');
-        newListElement.textContent = skill;
-        document.getElementById('skills-list').appendChild(newListElement);
-        skillInput.value = ''; // Clear the input field after adding the skill.
+    if (skillInput.value.trim()) {
+        appendToList('skills-list', skillInput.value.trim());
+        skillInput.value = '';
+    } else {
+        alert('Please enter a skill to add.');
     }
+}
+
+function appendToList(listId, value) {
+    const list = document.getElementById(listId);
+    const listItem = document.createElement('li');
+    listItem.textContent = value;
+    list.appendChild(listItem);
 }
