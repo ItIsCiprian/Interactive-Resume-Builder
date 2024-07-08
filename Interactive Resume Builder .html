@@ -11,30 +11,30 @@
 <!-- Resume Form Section -->
 <form id="resume-form">
   <!-- Input fields for personal information -->
-  <input type="text" id="name" placeholder="Your Name" required>
-  <input type="email" id="email" placeholder="Your Email" required>
-  <input type="tel" id="phone" placeholder="Your Phone Number" required>
+  <input type="text" id="name" placeholder="Your Name" required> <!-- Name input field -->
+  <input type="email" id="email" placeholder="Your Email" required> <!-- Email input field -->
+  <input type="tel" id="phone" placeholder="Your Phone Number" required> <!-- Phone number input field -->
   
   <!-- Textarea for entering a short biographical note -->
-  <textarea id="bio" placeholder="Short Bio"></textarea>
+  <textarea id="bio" placeholder="Short Bio"></textarea> <!-- Bio input field -->
   
   <!-- Skill input and addition section -->
   <div>
-    <input type="text" id="skill" placeholder="Add a Skill">
-    <button type="button" onclick="addSkill()">Add Skill</button>
-    <ol id="skills-list"></ol> <!-- List where added skills will appear -->
+    <input type="text" id="skill" placeholder="Add a Skill"> <!-- Skill input field -->
+    <button type="button" onclick="addSkill()">Add Skill</button> <!-- Button to add skill to the list -->
+    <ol id="skills-list"></ol> <!-- Ordered list where added skills will appear -->
   </div>
   
   <!-- Textareas for educational and professional experiences -->
-  <textarea id="education" placeholder="Education Background"></textarea>
-  <textarea id="experience" placeholder="Work Experience"></textarea>
+  <textarea id="education" placeholder="Education Background"></textarea> <!-- Education input field -->
+  <textarea id="experience" placeholder="Work Experience"></textarea> <!-- Experience input field -->
   
   <!-- Submission button to save the resume -->
-  <button type="submit">Save Resume</button>
+  <button type="submit">Save Resume</button> <!-- Submit button to save the resume -->
 </form>
 
 <!-- Container for the live preview of the resume -->
-<div id="resume-preview"></div>
+<div id="resume-preview"></div> <!-- Div where the live preview of the resume will be displayed -->
 
 <script src="script.js"></script> <!-- Linking external JavaScript for interactivity -->
 </body>
