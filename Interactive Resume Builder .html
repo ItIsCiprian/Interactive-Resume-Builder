@@ -8,33 +8,60 @@
 </head>
 <body>
 
-<!-- Resume Form Section -->
-<form id="resume-form">
-  <!-- Input fields for personal information -->
-  <input type="text" id="name" placeholder="Your Name" required> <!-- Name input field -->
-  <input type="email" id="email" placeholder="Your Email" required> <!-- Email input field -->
-  <input type="tel" id="phone" placeholder="Your Phone Number" required> <!-- Phone number input field -->
-  
-  <!-- Textarea for entering a short biographical note -->
-  <textarea id="bio" placeholder="Short Bio"></textarea> <!-- Bio input field -->
-  
-  <!-- Skill input and addition section -->
-  <div>
-    <input type="text" id="skill" placeholder="Add a Skill"> <!-- Skill input field -->
-    <button type="button" onclick="addSkill()">Add Skill</button> <!-- Button to add skill to the list -->
-    <ol id="skills-list"></ol> <!-- Ordered list where added skills will appear -->
-  </div>
-  
-  <!-- Textareas for educational and professional experiences -->
-  <textarea id="education" placeholder="Education Background"></textarea> <!-- Education input field -->
-  <textarea id="experience" placeholder="Work Experience"></textarea> <!-- Experience input field -->
-  
-  <!-- Submission button to save the resume -->
-  <button type="submit">Save Resume</button> <!-- Submit button to save the resume -->
-</form>
+<!-- Main container for the resume builder -->
+<main>
+  <!-- Resume Form Section -->
+  <form id="resume-form">
+    <fieldset>
+      <legend>Personal Information</legend>
+      <!-- Input fields for personal information -->
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" placeholder="Your Name" required> <!-- Name input field -->
+      
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" placeholder="Your Email" required> <!-- Email input field -->
+      
+      <label for="phone">Phone Number</label>
+      <input type="tel" id="phone" name="phone" placeholder="Your Phone Number" required> <!-- Phone number input field -->
+    </fieldset>
 
-<!-- Container for the live preview of the resume -->
-<div id="resume-preview"></div> <!-- Div where the live preview of the resume will be displayed -->
+    <fieldset>
+      <legend>About You</legend>
+      <!-- Textarea for entering a short biographical note -->
+      <label for="bio">Short Bio</label>
+      <textarea id="bio" name="bio" placeholder="Short Bio"></textarea> <!-- Bio input field -->
+    </fieldset>
+
+    <fieldset>
+      <legend>Skills</legend>
+      <!-- Skill input and addition section -->
+      <label for="skill">Add a Skill</label>
+      <input type="text" id="skill" name="skill" placeholder="Add a Skill"> <!-- Skill input field -->
+      <button type="button" onclick="addSkill()">Add Skill</button> <!-- Button to add skill to the list -->
+      <ol id="skills-list"></ol> <!-- Ordered list where added skills will appear -->
+    </fieldset>
+
+    <fieldset>
+      <legend>Education</legend>
+      <!-- Textarea for educational background -->
+      <label for="education">Education Background</label>
+      <textarea id="education" name="education" placeholder="Education Background"></textarea> <!-- Education input field -->
+    </fieldset>
+
+    <fieldset>
+      <legend>Work Experience</legend>
+      <!-- Textarea for professional experience -->
+      <label for="experience">Work Experience</label>
+      <textarea id="experience" name="experience" placeholder="Work Experience"></textarea> <!-- Experience input field -->
+    </fieldset>
+
+    <!-- Submission button to save the resume -->
+    <button type="submit">Save Resume</button> <!-- Submit button to save the resume -->
+  </form>
+
+  <!-- Container for the live preview of the resume -->
+  <section id="resume-preview" aria-live="polite"></section> <!-- Section where the live preview of the resume will be displayed -->
+</main>
 
 <script src="script.js"></script> <!-- Linking external JavaScript for interactivity -->
 </body>
