@@ -1,91 +1,244 @@
-// Execute when the DOM is fully loaded
-document.addEventListener('DOMContentLoaded', () => {
-    // Get the form element by its ID and attach the submit event listener
-    const form = document.getElementById('resume-form');
-    form.addEventListener('submit', handleFormSubmit);
+storageKey: 'resumeData',
+    selectors: {
+        form: '#resume-form',
+        preview: '#resume-preview',
+        skillInput: '#skill',
+        skillsList: '#skills-list',
+        addSkillButton: '#add-skill-button'
+    },
+    required: ['name', 'email']
+};
 
-    // Attach a click event listener to the 'Add Skill' button
-    document.getElementById('add-skill-button').addEventListener('click', addSkill);
-});
+class ResumeBuilder {
+    constructor() {
+        this.form = document.querySelector(CONFIG.selectors.form);
+        this.preview = document.querySelector(CONFIG.selectors.preview);
+        this.skillInput = document.querySelector(CONFIG.selectors.skillInput);
+        this.skillsList = document.querySelector(CONFIG.selectors.skillsList);
+        this.addSkillButton = document.querySelector(CONFIG.selectors.addSkillButton);
+        
+        this.initializeEventListeners();
+        this.loadSavedData();
+    }
 
-// Handle form submission
-function handleFormSubmit(event) {
-    event.preventDefault(); // Prevent the default form submission behavior
+    initializeEventListeners() {
+        this.form?.addEventListener('submit', this.handleFormSubmit.bind(this));
+        this.addSkillButton?.addEventListener('click', this.handleAddSkill.bind(this));
+        this.skillsList?.addEventListener('click', this.handleSkillDelete.bind(this));
+    }
 
-    const formData = collectFormData(); // Collect form data
-    updateResumePreview(formData); // Update the resume preview with collected data
-    saveToLocalStorage('resumeData', formData); // Save the data to local storage
-}
+    async handleFormSubmit(event) {
+        try {
+            event.preventDefault();
+            
+            const formData = this.collectFormData();
+            if (!this.validateFormData(formData)) {
+                throw new Error('Please fill in all required fields.');
+            }
 
-// Collect data from the form inputs
-function collectFormData() {
-    return {
-        name: getValueById('name'),
-        email: getValueById('email'),
-        phone: getValueById('phone'),
-        bio: getValueById('bio'),
-        education: getValueById('education'),
-        experience: getValueById('experience'),
-        skills: getSkills()
-    };
-}
+            await this.saveToLocalStorage(formData);
+            this.updateResumePreview(formData);
+            this.showNotification('Resume updated successfully!', 'success');
+        } catch (error) {
+            this.showNotification(error.message, 'error');
+        }
+    }
 
-// Get the value of a form input by its ID
-function getValueById(id) {
-    const element = document.getElementById(id);
-    return element ? element.value : ''; // Return the element's value or an empty string if not found
-}
+    validateFormData(data) {
+        return CONFIG.required.every(field => data[field]?.trim());
+    }
 
-// Get a list of skills from the skills list element
-function getSkills() {
-    const items = document.querySelectorAll('#skills-list li');
-    return Array.from(items, item => item.textContent); // Convert NodeList to Array and get text content of each item
-}
+    collectFormData() {
+        const formData = new FormData(this.form);
+        return {
+            name: formData.get('name'),
+            email: formData.get('email'),
+            phone: formData.get('phone'),
+            bio: formData.get('bio'),
+            education: formData.get('education'),
+            experience: formData.get('experience'),
+            skills: this.getSkills()
+        };
+    }
 
-// Update the resume preview with the provided form data
-function updateResumePreview(formData) {
-    const preview = document.getElementById('resume-preview');
-    preview.innerHTML = generatePreviewHTML(formData); // Generate and set the preview HTML
-}
+    getSkills() {
+        return Array.from(this.skillsList?.children || [])
+            .map(item => item.textContent?.replace('×', '').trim())
+            .filter(Boolean);
+    }
 
-// Generate HTML for the resume preview
-function generatePreviewHTML(data) {
-    return `
-        <h1>${data.name}</h1>
-        <p>${data.email}</p>
-        <p>${data.phone}</p>
-        <p>${data.bio}</p>
-        <h2>Skills</h2>
-        <ul>${data.skills.map(skill => `<li>${skill}</li>`).join('')}</ul>
-        <h2>Education</h2>
-        <p>${data.education}</p>
-        <h2>Experience</h2>
-        <p>${data.experience}</p>
-    `;
-}
+    handleAddSkill() {
+        const skill = this.skillInput?.value.trim();
+        
+        if (!skill) {
+            this.showNotification('Please enter a skill to add.', 'error');
+            return;
+        }
 
-// Save data to local storage
-function saveToLocalStorage(key, data) {
-    localStorage.setItem(key, JSON.stringify(data)); // Convert data to JSON string and save it
-}
+        if (this.getSkills().includes(skill)) {
+            this.showNotification('This skill already exists!', 'error');
+            return;
+        }
 
-// Handle adding a new skill to the skills list
-function addSkill() {
-    const skillInput = document.getElementById('skill');
-    const skill = skillInput.value.trim(); // Get and trim the skill input value
+        this.appendSkill(skill);
+        this.skillInput.value = '';
+        this.skillInput.focus();
+    }
 
-    if (skill) {
-        appendToList('skills-list', skill); // Append the skill to the list
-        skillInput.value = ''; // Clear the input field
-    } else {
-        alert('Please enter a skill to add.'); // Alert if the input field is empty
+    appendSkill(skill) {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            ${skill}
+            <span class="delete-skill" title="Remove skill">×</span>
+        `;
+        this.skillsList?.appendChild(li);
+    }
+
+    handleSkillDelete(event) {
+        if (event.target.classList.contains('delete-skill')) {
+            event.target.parentElement.remove();
+        }
+    }
+
+    updateResumePreview(data) {
+        if (!this.preview) return;
+        
+        this.preview.innerHTML = `
+            <div class="resume-header">
+                <h1>${this.escapeHTML(data.name)}</h1>
+                <div class="contact-info">
+                    <p><strong>Email:</strong> ${this.escapeHTML(data.email)}</p>
+                    ${data.phone ? `<p><strong>Phone:</strong> ${this.escapeHTML(data.phone)}</p>` : ''}
+                </div>
+            </div>
+
+            ${data.bio ? `
+                <section class="bio-section">
+                    <h2>Professional Summary</h2>
+                    <p>${this.escapeHTML(data.bio)}</p>
+                </section>
+            ` : ''}
+
+            ${data.skills.length ? `
+                <section class="skills-section">
+                    <h2>Skills</h2>
+                    <ul class="skills-list">
+                        ${data.skills.map(skill => `<li>${this.escapeHTML(skill)}</li>`).join('')}
+                    </ul>
+                </section>
+            ` : ''}
+
+            ${data.education ? `
+                <section class="education-section">
+                    <h2>Education</h2>
+                    <p>${this.escapeHTML(data.education)}</p>
+                </section>
+            ` : ''}
+
+            ${data.experience ? `
+                <section class="experience-section">
+                    <h2>Experience</h2>
+                    <p>${this.escapeHTML(data.experience)}</p>
+                </section>
+            ` : ''}
+        `;
+    }
+
+    async saveToLocalStorage(data) {
+        try {
+            localStorage.setItem(CONFIG.storageKey, JSON.stringify(data));
+        } catch (error) {
+            throw new Error('Failed to save resume data. Please try again.');
+        }
+    }
+
+    loadSavedData() {
+        try {
+            const savedData = localStorage.getItem(CONFIG.storageKey);
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                this.populateForm(data);
+                this.updateResumePreview(data);
+            }
+        } catch (error) {
+            this.showNotification('Failed to load saved data.', 'error');
+        }
+    }
+
+    populateForm(data) {
+        Object.entries(data).forEach(([key, value]) => {
+            if (key === 'skills') {
+                value.forEach(skill => this.appendSkill(skill));
+            } else {
+                const input = this.form?.querySelector(`[name="${key}"]`);
+                if (input) input.value = value;
+            }
+        });
+    }
+
+    showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
+    }
+
+    escapeHTML(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
     }
 }
 
-// Append a new item to a list by its ID
-function appendToList(listId, value) {
-    const list = document.getElementById(listId);
-    const listItem = document.createElement('li'); // Create a new list item
-    listItem.textContent = value; // Set the list item's text content
-    list.appendChild(listItem); // Append the list item to the list
+// Initialize the application when the DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    new ResumeBuilder();
+});
+
+// Recommended CSS styles for notifications
+const styles = `
+.notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 15px;
+    border-radius: 4px;
+    color: white;
+    animation: slide-in 0.3s ease-out;
 }
+
+.notification.success {
+    background-color: #4CAF50;
+}
+
+.notification.error {
+    background-color: #f44336;
+}
+
+.notification.info {
+    background-color: #2196F3;
+}
+
+@keyframes slide-in {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.delete-skill {
+    cursor: pointer;
+    margin-left: 8px;
+    color: #f44336;
+}
+
+.delete-skill:hover {
+    color: #d32f2f;
+}
+`;
