@@ -1,28 +1,265 @@
-/* General styling for the entire body to provide consistent font and spacing. */
+/* CSS Custom Properties for consistent theming */
+:root {
+    /* Colors */
+    --color-primary: #2196F3;
+    --color-primary-dark: #1976D2;
+    --color-success: #4CAF50;
+    --color-error: #f44336;
+    --color-text: #333333;
+    --color-text-light: #666666;
+    --color-border: #e0e0e0;
+    --color-background: #ffffff;
+    --color-background-alt: #f5f5f5;
+    
+    /* Spacing */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    
+    /* Typography */
+    --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.25rem;
+    --font-size-xl: 1.5rem;
+    
+    /* Borders */
+    --border-radius-sm: 4px;
+    --border-radius-md: 8px;
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
-  font-family: Arial, sans-serif; /* Sets a clean and modern font for the page. */
-  margin: 20px; /* Provides spacing around the entire content of the page. */
+    font-family: var(--font-primary);
+    color: var(--color-text);
+    line-height: 1.6;
+    background-color: var(--color-background);
+    padding: var(--spacing-md);
 }
 
-/* Specific styles for the resume form area to structure spacing. */
+/* Layout */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+}
+
+.resume-builder {
+    display: grid;
+    gap: var(--spacing-xl);
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+    .resume-builder {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* Form Styles */
 #resume-form {
-  margin-bottom: 20px; /* Extra space below the form for separation from subsequent content. */
+    background-color: var(--color-background);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-sm);
 }
 
-/* Uniform styles for text-based input fields and textarea, enhancing form usability. */
+.form-group {
+    margin-bottom: var(--spacing-md);
+}
+
+label {
+    display: block;
+    margin-bottom: var(--spacing-xs);
+    font-weight: 500;
+    color: var(--color-text);
+}
+
 input[type="text"],
 input[type="email"],
 input[type="tel"],
 textarea {
-  width: 100%; /* Ensures these elements take full width of their container for better alignment. */
-  padding: 8px; /* Adds space inside the elements, making text easier to read. */
-  margin: 10px 0; /* Adds vertical spacing to separate form elements. */
-  box-sizing: border-box; /* Includes padding and border in the element's total width and height. */
+    width: 100%;
+    padding: var(--spacing-sm);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-sm);
+    font-family: inherit;
+    font-size: var(--font-size-base);
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-/* Styles for the preview area of the resume to differentiate it from other content. */
+input:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* Button Styles */
+.button {
+    display: inline-block;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: none;
+    border-radius: var(--border-radius-sm);
+    background-color: var(--color-primary);
+    color: white;
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.button:hover {
+    background-color: var(--color-primary-dark);
+}
+
+.button:active {
+    transform: translateY(1px);
+}
+
+/* Skills Section */
+.skills-container {
+    margin: var(--spacing-md) 0;
+}
+
+#skills-list {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+}
+
+#skills-list li {
+    background-color: var(--color-background-alt);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+/* Preview Styles */
 #resume-preview {
-  border: 1px solid #ccc; /* Subtle border for visual distinction. */
-  padding: 20px; /* Padding inside the preview box, creating space around the displayed content. */
-  background-color: #f9f9f9; /* Light gray background to offset the preview from the rest of the page. */
+    background-color: var(--color-background);
+    padding: var(--spacing-xl);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-md);
+}
+
+.resume-header {
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 2px solid var(--color-primary);
+}
+
+.resume-header h1 {
+    font-size: var(--font-size-xl);
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.contact-info {
+    color: var(--color-text-light);
+    font-size: var(--font-size-sm);
+}
+
+section {
+    margin-bottom: var(--spacing-lg);
+}
+
+section h2 {
+    font-size: var(--font-size-lg);
+    color: var(--color-text);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-xs);
+    border-bottom: 1px solid var(--color-border);
+}
+
+/* Notification Styles */
+.notification {
+    position: fixed;
+    bottom: var(--spacing-lg);
+    right: var(--spacing-lg);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-sm);
+    color: white;
+    font-weight: 500;
+    box-shadow: var(--shadow-md);
+    z-index: 1000;
+    animation: slideIn 0.3s ease-out;
+}
+
+.notification.success {
+    background-color: var(--color-success);
+}
+
+.notification.error {
+    background-color: var(--color-error);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Print Styles */
+@media print {
+    body {
+        margin: 0;
+        padding: 0;
+    }
+    
+    #resume-form,
+    .button,
+    .notification {
+        display: none;
+    }
+    
+    #resume-preview {
+        border: none;
+        padding: 0;
+        box-shadow: none;
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 480px) {
+    :root {
+        --spacing-md: 12px;
+        --spacing-lg: 20px;
+        --spacing-xl: 24px;
+    }
+    
+    .container {
+        padding: 0 var(--spacing-sm);
+    }
+    
+    #resume-preview {
+        padding: var(--spacing-lg);
+    }
 }
