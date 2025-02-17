@@ -1,4 +1,5 @@
-storageKey: 'resumeData',
+const CONFIG = {
+    storageKey: 'resumeData',
     selectors: {
         form: '#resume-form',
         preview: '#resume-preview',
@@ -6,91 +7,74 @@ storageKey: 'resumeData',
         skillsList: '#skills-list',
         addSkillButton: '#add-skill-button'
     },
-    required: ['name', 'email']
+    requiredFields: ['name', 'email']
 };
 
 class ResumeBuilder {
     constructor() {
-        this.form = document.querySelector(CONFIG.selectors.form);
-        this.preview = document.querySelector(CONFIG.selectors.preview);
-        this.skillInput = document.querySelector(CONFIG.selectors.skillInput);
-        this.skillsList = document.querySelector(CONFIG.selectors.skillsList);
-        this.addSkillButton = document.querySelector(CONFIG.selectors.addSkillButton);
-        
-        this.initializeEventListeners();
+        this.cacheDOM();
+        this.bindEvents();
         this.loadSavedData();
     }
 
-    initializeEventListeners() {
-        this.form?.addEventListener('submit', this.handleFormSubmit.bind(this));
-        this.addSkillButton?.addEventListener('click', this.handleAddSkill.bind(this));
-        this.skillsList?.addEventListener('click', this.handleSkillDelete.bind(this));
+    cacheDOM() {
+        const { form, preview, skillInput, skillsList, addSkillButton } = CONFIG.selectors;
+        this.form = document.querySelector(form);
+        this.preview = document.querySelector(preview);
+        this.skillInput = document.querySelector(skillInput);
+        this.skillsList = document.querySelector(skillsList);
+        this.addSkillButton = document.querySelector(addSkillButton);
     }
 
-    async handleFormSubmit(event) {
-        try {
-            event.preventDefault();
-            
-            const formData = this.collectFormData();
-            if (!this.validateFormData(formData)) {
-                throw new Error('Please fill in all required fields.');
-            }
+    bindEvents() {
+        this.form?.addEventListener('submit', (e) => this.handleFormSubmit(e));
+        this.addSkillButton?.addEventListener('click', () => this.handleAddSkill());
+        this.skillsList?.addEventListener('click', (e) => this.handleSkillDelete(e));
+    }
 
-            await this.saveToLocalStorage(formData);
-            this.updateResumePreview(formData);
-            this.showNotification('Resume updated successfully!', 'success');
-        } catch (error) {
-            this.showNotification(error.message, 'error');
+    handleFormSubmit(event) {
+        event.preventDefault();
+        const formData = this.collectFormData();
+        
+        if (!this.validateFormData(formData)) {
+            return this.showNotification('Please fill in all required fields.', 'error');
         }
+        
+        this.saveToLocalStorage(formData);
+        this.updateResumePreview(formData);
+        this.showNotification('Resume updated successfully!', 'success');
     }
 
     validateFormData(data) {
-        return CONFIG.required.every(field => data[field]?.trim());
+        return CONFIG.requiredFields.every(field => data[field]?.trim());
     }
 
     collectFormData() {
-        const formData = new FormData(this.form);
-        return {
-            name: formData.get('name'),
-            email: formData.get('email'),
-            phone: formData.get('phone'),
-            bio: formData.get('bio'),
-            education: formData.get('education'),
-            experience: formData.get('experience'),
-            skills: this.getSkills()
-        };
+        const data = {};
+        CONFIG.requiredFields.concat(['phone', 'bio', 'education', 'experience']).forEach(field => {
+            const input = this.form?.querySelector(`[name="${field}"]`);
+            data[field] = input ? input.value.trim() : '';
+        });
+        data.skills = this.getSkills();
+        return data;
     }
 
     getSkills() {
-        return Array.from(this.skillsList?.children || [])
-            .map(item => item.textContent?.replace('×', '').trim())
-            .filter(Boolean);
+        return [...this.skillsList?.children].map(item => item.textContent.replace('×', '').trim()).filter(Boolean);
     }
 
     handleAddSkill() {
         const skill = this.skillInput?.value.trim();
-        
-        if (!skill) {
-            this.showNotification('Please enter a skill to add.', 'error');
-            return;
+        if (!skill || this.getSkills().includes(skill)) {
+            return this.showNotification('Invalid or duplicate skill!', 'error');
         }
-
-        if (this.getSkills().includes(skill)) {
-            this.showNotification('This skill already exists!', 'error');
-            return;
-        }
-
         this.appendSkill(skill);
         this.skillInput.value = '';
-        this.skillInput.focus();
     }
 
     appendSkill(skill) {
         const li = document.createElement('li');
-        li.innerHTML = `
-            ${skill}
-            <span class="delete-skill" title="Remove skill">×</span>
-        `;
+        li.innerHTML = `${skill} <span class="delete-skill" title="Remove skill">×</span>`;
         this.skillsList?.appendChild(li);
     }
 
@@ -103,63 +87,36 @@ class ResumeBuilder {
     updateResumePreview(data) {
         if (!this.preview) return;
         
+        const sections = {
+            bio: `<section><h2>Summary</h2><p>${this.escapeHTML(data.bio)}</p></section>`,
+            skills: `<section><h2>Skills</h2><ul>${data.skills.map(skill => `<li>${this.escapeHTML(skill)}</li>`).join('')}</ul></section>`,
+            education: `<section><h2>Education</h2><p>${this.escapeHTML(data.education)}</p></section>`,
+            experience: `<section><h2>Experience</h2><p>${this.escapeHTML(data.experience)}</p></section>`
+        };
+
         this.preview.innerHTML = `
             <div class="resume-header">
                 <h1>${this.escapeHTML(data.name)}</h1>
-                <div class="contact-info">
-                    <p><strong>Email:</strong> ${this.escapeHTML(data.email)}</p>
-                    ${data.phone ? `<p><strong>Phone:</strong> ${this.escapeHTML(data.phone)}</p>` : ''}
-                </div>
+                <p><strong>Email:</strong> ${this.escapeHTML(data.email)}</p>
+                ${data.phone ? `<p><strong>Phone:</strong> ${this.escapeHTML(data.phone)}</p>` : ''}
             </div>
-
-            ${data.bio ? `
-                <section class="bio-section">
-                    <h2>Professional Summary</h2>
-                    <p>${this.escapeHTML(data.bio)}</p>
-                </section>
-            ` : ''}
-
-            ${data.skills.length ? `
-                <section class="skills-section">
-                    <h2>Skills</h2>
-                    <ul class="skills-list">
-                        ${data.skills.map(skill => `<li>${this.escapeHTML(skill)}</li>`).join('')}
-                    </ul>
-                </section>
-            ` : ''}
-
-            ${data.education ? `
-                <section class="education-section">
-                    <h2>Education</h2>
-                    <p>${this.escapeHTML(data.education)}</p>
-                </section>
-            ` : ''}
-
-            ${data.experience ? `
-                <section class="experience-section">
-                    <h2>Experience</h2>
-                    <p>${this.escapeHTML(data.experience)}</p>
-                </section>
-            ` : ''}
+            ${Object.values(sections).filter(Boolean).join('')}
         `;
     }
 
-    async saveToLocalStorage(data) {
+    saveToLocalStorage(data) {
         try {
             localStorage.setItem(CONFIG.storageKey, JSON.stringify(data));
         } catch (error) {
-            throw new Error('Failed to save resume data. Please try again.');
+            this.showNotification('Failed to save data.', 'error');
         }
     }
 
     loadSavedData() {
         try {
-            const savedData = localStorage.getItem(CONFIG.storageKey);
-            if (savedData) {
-                const data = JSON.parse(savedData);
-                this.populateForm(data);
-                this.updateResumePreview(data);
-            }
+            const savedData = JSON.parse(localStorage.getItem(CONFIG.storageKey)) || {};
+            this.populateForm(savedData);
+            this.updateResumePreview(savedData);
         } catch (error) {
             this.showNotification('Failed to load saved data.', 'error');
         }
@@ -180,7 +137,6 @@ class ResumeBuilder {
         const notification = document.createElement('div');
         notification.className = `notification ${type}`;
         notification.textContent = message;
-        
         document.body.appendChild(notification);
         setTimeout(() => notification.remove(), 3000);
     }
@@ -192,53 +148,4 @@ class ResumeBuilder {
     }
 }
 
-// Initialize the application when the DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    new ResumeBuilder();
-});
-
-// Recommended CSS styles for notifications
-const styles = `
-.notification {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    padding: 15px;
-    border-radius: 4px;
-    color: white;
-    animation: slide-in 0.3s ease-out;
-}
-
-.notification.success {
-    background-color: #4CAF50;
-}
-
-.notification.error {
-    background-color: #f44336;
-}
-
-.notification.info {
-    background-color: #2196F3;
-}
-
-@keyframes slide-in {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-.delete-skill {
-    cursor: pointer;
-    margin-left: 8px;
-    color: #f44336;
-}
-
-.delete-skill:hover {
-    color: #d32f2f;
-}
-`;
+document.addEventListener('DOMContentLoaded', () => new ResumeBuilder());
