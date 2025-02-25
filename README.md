@@ -30,7 +30,7 @@ Before you begin, ensure the following are installed on your system:
 ### 🛠️ Installation
 1. **Clone the Repository**:
    ```bash
-   git clone [https://github.com/yourusername/interactive-resume-builder.git](https://github.com/ItIsCiprian/Interactive-Resume-Builder)
+   git clone (https://github.com/ItIsCiprian/Interactive-Resume-Builder)
 Navigate to the Project Directory:
 cd interactive-resume-builder
 Install Dependencies:
