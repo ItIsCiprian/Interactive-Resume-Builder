@@ -4,65 +4,76 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Interactive Resume Builder</title>
-  <link rel="stylesheet" href="style.css"> <!-- Linking external stylesheet for styling -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <main class="resume-builder">
+    <!-- Resume Form Section -->
+    <form id="resume-form" class="resume-form">
+      <fieldset class="form-section">
+        <legend>Personal Information</legend>
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" placeholder="Your Name" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="Your Email" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="phone">Phone Number</label>
+          <input type="tel" id="phone" name="phone" placeholder="Your Phone Number" required>
+        </div>
+      </fieldset>
 
-<!-- Main container for the resume builder -->
-<main>
-  <!-- Resume Form Section -->
-  <form id="resume-form">
-    <fieldset>
-      <legend>Personal Information</legend>
-      <!-- Input fields for personal information -->
-      <label for="name">Name</label>
-      <input type="text" id="name" name="name" placeholder="Your Name" required> <!-- Name input field -->
-      
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" placeholder="Your Email" required> <!-- Email input field -->
-      
-      <label for="phone">Phone Number</label>
-      <input type="tel" id="phone" name="phone" placeholder="Your Phone Number" required> <!-- Phone number input field -->
-    </fieldset>
+      <fieldset class="form-section">
+        <legend>About You</legend>
+        <div class="form-group">
+          <label for="bio">Short Bio</label>
+          <textarea id="bio" name="bio" placeholder="Tell us about yourself"></textarea>
+        </div>
+      </fieldset>
 
-    <fieldset>
-      <legend>About You</legend>
-      <!-- Textarea for entering a short biographical note -->
-      <label for="bio">Short Bio</label>
-      <textarea id="bio" name="bio" placeholder="Short Bio"></textarea> <!-- Bio input field -->
-    </fieldset>
+      <fieldset class="form-section">
+        <legend>Skills</legend>
+        <div class="form-group skills-input">
+          <label for="skill">Add a Skill</label>
+          <div class="input-group">
+            <input type="text" id="skill" name="skill" placeholder="Add a Skill">
+            <button type="button" id="add-skill-btn" class="btn">Add Skill</button>
+          </div>
+          <ol id="skills-list" class="skills-list"></ol>
+        </div>
+      </fieldset>
 
-    <fieldset>
-      <legend>Skills</legend>
-      <!-- Skill input and addition section -->
-      <label for="skill">Add a Skill</label>
-      <input type="text" id="skill" name="skill" placeholder="Add a Skill"> <!-- Skill input field -->
-      <button type="button" onclick="addSkill()">Add Skill</button> <!-- Button to add skill to the list -->
-      <ol id="skills-list"></ol> <!-- Ordered list where added skills will appear -->
-    </fieldset>
+      <fieldset class="form-section">
+        <legend>Education</legend>
+        <div class="form-group">
+          <label for="education">Education Background</label>
+          <textarea id="education" name="education" placeholder="List your education history"></textarea>
+        </div>
+      </fieldset>
 
-    <fieldset>
-      <legend>Education</legend>
-      <!-- Textarea for educational background -->
-      <label for="education">Education Background</label>
-      <textarea id="education" name="education" placeholder="Education Background"></textarea> <!-- Education input field -->
-    </fieldset>
+      <fieldset class="form-section">
+        <legend>Work Experience</legend>
+        <div class="form-group">
+          <label for="experience">Work Experience</label>
+          <textarea id="experience" name="experience" placeholder="Describe your work experience"></textarea>
+        </div>
+      </fieldset>
 
-    <fieldset>
-      <legend>Work Experience</legend>
-      <!-- Textarea for professional experience -->
-      <label for="experience">Work Experience</label>
-      <textarea id="experience" name="experience" placeholder="Work Experience"></textarea> <!-- Experience input field -->
-    </fieldset>
+      <button type="submit" id="save-resume" class="btn btn-primary">Save Resume</button>
+    </form>
 
-    <!-- Submission button to save the resume -->
-    <button type="submit">Save Resume</button> <!-- Submit button to save the resume -->
-  </form>
+    <!-- Resume Preview Section -->
+    <section id="resume-preview" class="resume-preview" aria-live="polite">
+      <h2>Resume Preview</h2>
+      <div id="preview-content" class="preview-content"></div>
+    </section>
+  </main>
 
-  <!-- Container for the live preview of the resume -->
-  <section id="resume-preview" aria-live="polite"></section> <!-- Section where the live preview of the resume will be displayed -->
-</main>
-
-<script src="script.js"></script> <!-- Linking external JavaScript for interactivity -->
+  <script src="script.js"></script>
 </body>
 </html>
