@@ -1,79 +1,81 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interactive Resume Builder</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Resume Builder</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main class="resume-builder">
-    <!-- Resume Form Section -->
-    <form id="resume-form" class="resume-form">
-      <fieldset class="form-section">
-        <legend>Personal Information</legend>
-        <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" name="name" placeholder="Your Name" required>
-        </div>
-        
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" name="email" placeholder="Your Email" required>
-        </div>
-        
-        <div class="form-group">
-          <label for="phone">Phone Number</label>
-          <input type="tel" id="phone" name="phone" placeholder="Your Phone Number" required>
-        </div>
-      </fieldset>
+    <main class="resume-builder container">
+        <form id="resume-form" class="resume-form">
+            <fieldset class="form-section personal-info">
+                <legend>Personal Information</legend>
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" placeholder="Your Name" required>
+                </div>
 
-      <fieldset class="form-section">
-        <legend>About You</legend>
-        <div class="form-group">
-          <label for="bio">Short Bio</label>
-          <textarea id="bio" name="bio" placeholder="Tell us about yourself"></textarea>
-        </div>
-      </fieldset>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="Your Email" required>
+                </div>
 
-      <fieldset class="form-section">
-        <legend>Skills</legend>
-        <div class="form-group skills-input">
-          <label for="skill">Add a Skill</label>
-          <div class="input-group">
-            <input type="text" id="skill" name="skill" placeholder="Add a Skill">
-            <button type="button" id="add-skill-btn" class="btn">Add Skill</button>
-          </div>
-          <ol id="skills-list" class="skills-list"></ol>
-        </div>
-      </fieldset>
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" placeholder="Your Phone Number">
+                </div>
+            </fieldset>
 
-      <fieldset class="form-section">
-        <legend>Education</legend>
-        <div class="form-group">
-          <label for="education">Education Background</label>
-          <textarea id="education" name="education" placeholder="List your education history"></textarea>
-        </div>
-      </fieldset>
+            <fieldset class="form-section about-you">
+                <legend>About You</legend>
+                <div class="form-group">
+                    <label for="bio">Short Bio</label>
+                    <textarea id="bio" name="bio" placeholder="Tell us about yourself"></textarea>
+                </div>
+            </fieldset>
 
-      <fieldset class="form-section">
-        <legend>Work Experience</legend>
-        <div class="form-group">
-          <label for="experience">Work Experience</label>
-          <textarea id="experience" name="experience" placeholder="Describe your work experience"></textarea>
-        </div>
-      </fieldset>
+            <fieldset class="form-section skills-section">
+                <legend>Skills</legend>
+                <div class="form-group skills-input">
+                    <label for="skill">Add a Skill</label>
+                    <div class="input-group">
+                        <input type="text" id="skill" name="skill" placeholder="Add a Skill">
+                        <button type="button" id="add-skill-btn" class="button">Add Skill</button>
+                    </div>
+                    <ol id="skills-list" class="skills-list"></ol>
+                </div>
+            </fieldset>
 
-      <button type="submit" id="save-resume" class="btn btn-primary">Save Resume</button>
-    </form>
+            <fieldset class="form-section education-section">
+                <legend>Education</legend>
+                <div class="form-group">
+                    <label for="education">Education Background</label>
+                    <textarea id="education" name="education" placeholder="List your education history"></textarea>
+                </div>
+            </fieldset>
 
-    <!-- Resume Preview Section -->
-    <section id="resume-preview" class="resume-preview" aria-live="polite">
-      <h2>Resume Preview</h2>
-      <div id="preview-content" class="preview-content"></div>
-    </section>
-  </main>
+            <fieldset class="form-section experience-section">
+                <legend>Work Experience</legend>
+                <div class="form-group">
+                    <label for="experience">Work Experience</label>
+                    <textarea id="experience" name="experience" placeholder="Describe your work experience"></textarea>
+                </div>
+            </fieldset>
 
-  <script src="script.js"></script>
+            <button type="submit" id="save-resume" class="button button-primary">Save Resume</button>
+        </form>
+
+        <section id="resume-preview" class="resume-preview" aria-live="polite">
+            <h2>Resume Preview</h2>
+            <div id="preview-content" class="preview-content">
+                <div class="resume-header"></div>
+                <div class="resume-body"></div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
 </body>
 </html>
