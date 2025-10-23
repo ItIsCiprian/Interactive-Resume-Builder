@@ -75,6 +75,11 @@ class ResumeBuilder {
         if (this.elements.skillsList) {
             this.elements.skillsList.addEventListener('click', this.handleSkillDelete.bind(this));
         }
+
+        const downloadPdfButton = document.getElementById('download-pdf');
+        if (downloadPdfButton) {
+            downloadPdfButton.addEventListener('click', this.handleDownloadPdf.bind(this));
+        }
     }
 
     /**
@@ -318,6 +323,22 @@ class ResumeBuilder {
         const div = document.createElement('div');
         div.textContent = str;
         return div.innerHTML;
+    }
+
+    /**
+     * Handle PDF download
+     */
+    handleDownloadPdf() {
+        const element = this.elements.previewContent;
+        const opt = {
+            margin:       1,
+            filename:     'resume.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+
+        html2pdf().from(element).set(opt).save();
     }
 }
 
