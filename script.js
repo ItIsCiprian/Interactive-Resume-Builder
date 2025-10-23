@@ -80,6 +80,11 @@ class ResumeBuilder {
         if (downloadPdfButton) {
             downloadPdfButton.addEventListener('click', this.handleDownloadPdf.bind(this));
         }
+
+        const printResumeButton = document.getElementById('print-resume');
+        if (printResumeButton) {
+            printResumeButton.addEventListener('click', this.handlePrintResume.bind(this));
+        }
     }
 
     /**
@@ -339,6 +344,13 @@ class ResumeBuilder {
         };
 
         html2pdf().from(element).set(opt).save();
+    }
+
+    /**
+     * Handle printing the resume
+     */
+    handlePrintResume() {
+        window.print();
     }
 }
 

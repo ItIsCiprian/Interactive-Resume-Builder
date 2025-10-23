@@ -215,5 +215,41 @@ body {
 }
 
 .notification.fade-out {
+
     opacity: 0;
+
+}
+
+
+
+@media print {
+
+    body {
+
+        background-color: var(--color-background);
+
+    }
+
+
+
+    .resume-form,
+
+    .resume-preview h2,
+
+    .button {
+
+        display: none;
+
+    }
+
+
+
+    .resume-preview {
+
+        box-shadow: none;
+
+        padding: 0;
+
+    }
+
 }
