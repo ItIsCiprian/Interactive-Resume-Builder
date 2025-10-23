@@ -85,6 +85,11 @@ class ResumeBuilder {
         if (printResumeButton) {
             printResumeButton.addEventListener('click', this.handlePrintResume.bind(this));
         }
+
+        const clearFormButton = document.getElementById('clear-form');
+        if (clearFormButton) {
+            clearFormButton.addEventListener('click', this.handleClearForm.bind(this));
+        }
     }
 
     /**
@@ -351,6 +356,17 @@ class ResumeBuilder {
      */
     handlePrintResume() {
         window.print();
+    }
+
+    /**
+     * Handle clearing the form
+     */
+    handleClearForm() {
+        this.elements.form.reset();
+        this.elements.skillsList.innerHTML = '';
+        localStorage.removeItem(CONFIG.storageKey);
+        this.updateResumePreview({});
+        this.showNotification('Form cleared successfully!', 'success');
     }
 }
 
