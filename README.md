@@ -70,6 +70,6 @@ This project is distributed under the MIT License. For more details, refer to th
 ## 📬 Contact
 
 👤 **Your Name**
-- 📧 Email: youremail@example.com
-- 🐦 Twitter: @yourtwitter
+- 📧 Email: ionutcipriananescu@example.com
+- 🐦 Twitter: @ItisCiprian
 - 🌐 Project Link: [Interactive Resume Builder](https://github.com/ItIsCiprian/Interactive-Resume-Builder)
