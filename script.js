@@ -1,6 +1,9 @@
 /**
  * Resume Builder Application
  * A client-side application for creating and previewing resumes
+ * 
+ * @version 2.0.0
+ * @author Interactive Resume Builder Team
  */
 
 // Configuration object with constants
@@ -16,6 +19,7 @@ const CONFIG = {
     downloadPdfButton: "#download-pdf",
     printResumeButton: "#print-resume",
     clearFormButton: "#clear-form",
+    aiAgentInfo: "#ai-agent-info",
   },
   requiredFields: ["name", "email"],
   optionalFields: ["phone", "bio", "education", "experience"],
@@ -44,6 +48,7 @@ class ResumeBuilder {
 
     this.bindEvents();
     this.loadSavedData();
+    this.detectAndDisplayAIAgent();
   }
 
   /**
@@ -353,6 +358,88 @@ class ResumeBuilder {
     localStorage.removeItem(CONFIG.storageKey);
     this.updateResumePreview({});
     this.showNotification("Form cleared successfully!", "success");
+  }
+
+  /**
+   * Detect and display installed AI agent information
+   */
+  async detectAndDisplayAIAgent() {
+    const aiAgentInfo = this.elements.aiAgentInfo;
+    if (!aiAgentInfo) return;
+
+    try {
+      // Load AI agent information from JSON file
+      const aiAgents = await this.loadAIAgentInfo();
+      
+      if (aiAgents.length === 0) {
+        aiAgentInfo.innerHTML = `
+          <div class="ai-agent-status">
+            <h3>🤖 AI Agent Status</h3>
+            <p class="no-agent">No AI agents detected on this system.</p>
+            <p class="hint">Run <code>node detect-ai-agent.js</code> to detect installed AI agents.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const agentsHTML = aiAgents.map(agent => `
+        <div class="ai-agent-item">
+          <div class="agent-header">
+            <span class="agent-name">${this.escapeHTML(agent.name)}</span>
+            <span class="agent-version">v${this.escapeHTML(agent.version)}</span>
+          </div>
+          ${agent.type ? `<span class="agent-type badge badge-${agent.type}">${this.escapeHTML(agent.type)}</span>` : ''}
+          ${agent.description ? `<p class="agent-description">${this.escapeHTML(agent.description)}</p>` : ''}
+        </div>
+      `).join('');
+
+      aiAgentInfo.innerHTML = `
+        <div class="ai-agent-status">
+          <h3>🤖 AI Agent Status</h3>
+          <div class="ai-agents-list">
+            ${agentsHTML}
+          </div>
+        </div>
+      `;
+    } catch (error) {
+      console.error("Error detecting AI agents:", error);
+      aiAgentInfo.innerHTML = `
+        <div class="ai-agent-status">
+          <h3>🤖 AI Agent Status</h3>
+          <p class="error">Unable to load AI agent information.</p>
+          <p class="hint">Run <code>node detect-ai-agent.js</code> to generate agent information.</p>
+        </div>
+      `;
+    }
+  }
+
+  /**
+   * Load AI agent information from JSON file
+   */
+  async loadAIAgentInfo() {
+    try {
+      const response = await fetch('ai-agents.json');
+      if (!response.ok) {
+        throw new Error('AI agents file not found');
+      }
+      const agents = await response.json();
+      return Array.isArray(agents) ? agents : [];
+    } catch (error) {
+      console.warn('Could not load ai-agents.json:', error.message);
+      // Check localStorage as fallback
+      const cachedAgentInfo = localStorage.getItem('aiAgentInfo');
+      if (cachedAgentInfo) {
+        try {
+          const parsed = JSON.parse(cachedAgentInfo);
+          if (Array.isArray(parsed)) {
+            return parsed;
+          }
+        } catch (e) {
+          // Invalid cache
+        }
+      }
+      return [];
+    }
   }
 }
 
