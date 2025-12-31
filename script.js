@@ -22,7 +22,7 @@ const CONFIG = {
     aiAgentInfo: "#ai-agent-info",
   },
   requiredFields: ["name", "email"],
-  optionalFields: ["phone", "bio", "education", "experience"],
+  optionalFields: ["phone", "bio", "education"],
   notificationDuration: 3000,
   skillDeleteIcon: "×", // Centralized delete icon
 };
@@ -31,6 +31,8 @@ class ResumeBuilder {
   constructor() {
     this.elements = {};
     this.skills = [];
+    this.experiences = [];
+    this.experienceCounter = 0;
 
     this.initializeApp();
   }
@@ -49,6 +51,12 @@ class ResumeBuilder {
     this.bindEvents();
     this.loadSavedData();
     this.detectAndDisplayAIAgent();
+    
+    // Add initial experience entry if none exist
+    const experiencesList = document.getElementById("experiences-list");
+    if (experiencesList && experiencesList.children.length === 0) {
+      this.addExperienceEntry();
+    }
   }
 
   /**
@@ -99,6 +107,20 @@ class ResumeBuilder {
     addClickListener(this.elements.downloadPdfButton, this.handleDownloadPdf);
     addClickListener(this.elements.printResumeButton, this.handlePrintResume);
     addClickListener(this.elements.clearFormButton, this.handleClearForm);
+
+    // Experience handlers
+    const addExpBtn = document.getElementById("add-experience-btn");
+    if (addExpBtn) {
+      addExpBtn.addEventListener("click", this.handleAddExperience.bind(this));
+    }
+
+    const experiencesList = document.getElementById("experiences-list");
+    if (experiencesList) {
+      experiencesList.addEventListener("click", this.handleExperienceDelete.bind(this));
+    }
+
+    // Import handlers
+    this.setupImportHandlers();
   }
 
   /**
@@ -134,6 +156,7 @@ class ResumeBuilder {
     });
 
     data.skills = this.getSkills();
+    data.experiences = this.getExperiences();
     return data;
   }
 
@@ -242,7 +265,30 @@ class ResumeBuilder {
     const bio = section("Summary", `<p>${this.escapeHTML(data.bio)}</p>`);
     const skills = section("Skills", `<ul>${data.skills?.map((s) => `<li>${this.escapeHTML(s)}</li>`).join("")}</ul>`);
     const education = section("Education", `<p>${this.escapeHTML(data.education)}</p>`);
-    const experience = section("Experience", `<p>${this.escapeHTML(data.experience)}</p>`);
+    
+    // Generate experiences section
+    let experienceHTML = "";
+    if (data.experiences && Array.isArray(data.experiences) && data.experiences.length > 0) {
+      experienceHTML = data.experiences.map(exp => {
+        const dateRange = exp.startDate && exp.endDate 
+          ? `${this.escapeHTML(exp.startDate)} - ${this.escapeHTML(exp.endDate)}`
+          : exp.startDate 
+          ? `${this.escapeHTML(exp.startDate)} - Present`
+          : "";
+        const location = exp.location ? ` | ${this.escapeHTML(exp.location)}` : "";
+        return `
+          <div class="experience-item">
+            <h3>${this.escapeHTML(exp.position || "")} ${exp.company ? `at ${this.escapeHTML(exp.company)}` : ""}</h3>
+            ${dateRange ? `<p class="experience-date">${dateRange}${location}</p>` : ""}
+            ${exp.description ? `<p>${this.escapeHTML(exp.description)}</p>` : ""}
+          </div>
+        `;
+      }).join("");
+    } else if (data.experience) {
+      // Fallback for old format
+      experienceHTML = `<p>${this.escapeHTML(data.experience)}</p>`;
+    }
+    const experience = section("Experience", experienceHTML);
 
     return `${bio}${skills}${education}${experience}`;
   }
@@ -290,6 +336,10 @@ class ResumeBuilder {
 
     if (data.skills && Array.isArray(data.skills)) {
       data.skills.forEach((skill) => this.appendSkill(skill));
+    }
+
+    if (data.experiences && Array.isArray(data.experiences)) {
+      data.experiences.forEach((exp) => this.addExperienceEntry(exp));
     }
   }
 
@@ -355,9 +405,149 @@ class ResumeBuilder {
       this.elements.skillsList.innerHTML = "";
     }
 
+    const experiencesList = document.getElementById("experiences-list");
+    if (experiencesList) {
+      experiencesList.innerHTML = "";
+      this.experiences = [];
+      this.experienceCounter = 0;
+    }
+
     localStorage.removeItem(CONFIG.storageKey);
     this.updateResumePreview({});
     this.showNotification("Form cleared successfully!", "success");
+  }
+
+  /**
+   * Handle adding a new experience entry
+   */
+  handleAddExperience() {
+    this.addExperienceEntry();
+  }
+
+  /**
+   * Add an experience entry to the form
+   */
+  addExperienceEntry(data = {}) {
+    const experiencesList = document.getElementById("experiences-list");
+    if (!experiencesList) return;
+
+    const id = this.experienceCounter++;
+    const experienceId = `experience-${id}`;
+
+    const experienceHTML = `
+      <div class="experience-entry" data-id="${id}">
+        <div class="experience-entry-header">
+          <h4>Experience #${id + 1}</h4>
+          <button type="button" class="delete-experience" aria-label="Remove Experience">×</button>
+        </div>
+        <div class="experience-fields">
+          <div class="form-group">
+            <label for="${experienceId}-company">Company *</label>
+            <input type="text" id="${experienceId}-company" name="experience-company" 
+                   placeholder="Company Name" value="${this.escapeHTML(data.company || "")}" required>
+          </div>
+          <div class="form-group">
+            <label for="${experienceId}-position">Position/Title *</label>
+            <input type="text" id="${experienceId}-position" name="experience-position" 
+                   placeholder="Job Title" value="${this.escapeHTML(data.position || "")}" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="${experienceId}-start">Start Date</label>
+              <input type="month" id="${experienceId}-start" name="experience-start" 
+                     value="${data.startDate || ""}">
+            </div>
+            <div class="form-group">
+              <label for="${experienceId}-end">End Date</label>
+              <input type="month" id="${experienceId}-end" name="experience-end" 
+                     value="${data.endDate || ""}">
+              <label class="checkbox-label">
+                <input type="checkbox" id="${experienceId}-current" name="experience-current" 
+                       ${data.current ? "checked" : ""}>
+                Current Position
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="${experienceId}-location">Location</label>
+            <input type="text" id="${experienceId}-location" name="experience-location" 
+                   placeholder="City, Country" value="${this.escapeHTML(data.location || "")}">
+          </div>
+          <div class="form-group">
+            <label for="${experienceId}-description">Description</label>
+            <textarea id="${experienceId}-description" name="experience-description" 
+                      placeholder="Describe your responsibilities and achievements..." 
+                      rows="4">${this.escapeHTML(data.description || "")}</textarea>
+          </div>
+        </div>
+      </div>
+    `;
+
+    experiencesList.insertAdjacentHTML("beforeend", experienceHTML);
+
+    // Handle current position checkbox
+    const currentCheckbox = document.getElementById(`${experienceId}-current`);
+    const endDateInput = document.getElementById(`${experienceId}-end`);
+    if (currentCheckbox && endDateInput) {
+      currentCheckbox.addEventListener("change", (e) => {
+        endDateInput.disabled = e.target.checked;
+        if (e.target.checked) {
+          endDateInput.value = "";
+        }
+      });
+      if (currentCheckbox.checked) {
+        endDateInput.disabled = true;
+      }
+    }
+  }
+
+  /**
+   * Handle deleting an experience entry
+   */
+  handleExperienceDelete(event) {
+    if (event.target.classList.contains("delete-experience")) {
+      const experienceEntry = event.target.closest(".experience-entry");
+      if (experienceEntry) {
+        experienceEntry.remove();
+        this.showNotification("Experience removed", "success");
+      }
+    }
+  }
+
+  /**
+   * Get all experiences from the form
+   */
+  getExperiences() {
+    const experiencesList = document.getElementById("experiences-list");
+    if (!experiencesList) return [];
+
+    const entries = experiencesList.querySelectorAll(".experience-entry");
+    const experiences = [];
+
+    entries.forEach((entry) => {
+      const id = entry.dataset.id;
+      const company = entry.querySelector(`#experience-${id}-company`)?.value.trim();
+      const position = entry.querySelector(`#experience-${id}-position`)?.value.trim();
+      const startDate = entry.querySelector(`#experience-${id}-start`)?.value;
+      const endDate = entry.querySelector(`#experience-${id}-end`)?.value;
+      const current = entry.querySelector(`#experience-${id}-current`)?.checked;
+      const location = entry.querySelector(`#experience-${id}-location`)?.value.trim();
+      const description = entry.querySelector(`#experience-${id}-description`)?.value.trim();
+
+      if (company || position) {
+        experiences.push({
+          company,
+          position,
+          startDate,
+          endDate: current ? null : endDate,
+          current: current || false,
+          location,
+          description,
+        });
+      }
+    });
+
+    return experiences;
   }
 
   /**
@@ -440,6 +630,290 @@ class ResumeBuilder {
       }
       return [];
     }
+  }
+
+  /**
+   * Setup import handlers
+   */
+  setupImportHandlers() {
+    const importButtons = document.querySelectorAll(".button-import");
+    const modal = document.getElementById("import-modal");
+    const closeModal = document.getElementById("close-modal");
+    const fileUpload = document.getElementById("file-upload");
+    const fileUploadInput = document.getElementById("file-upload-input");
+
+    // Open modal for each import type
+    importButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const source = button.dataset.source;
+        this.openImportModal(source);
+      });
+    });
+
+    // Close modal
+    if (closeModal) {
+      closeModal.addEventListener("click", () => this.closeImportModal());
+    }
+
+    if (modal) {
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+          this.closeImportModal();
+        }
+      });
+    }
+
+    // File upload handler
+    if (fileUpload) {
+      fileUpload.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          this.handleFileUpload(file);
+        }
+      });
+    }
+
+    if (fileUploadInput) {
+      fileUploadInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          document.getElementById("file-name").textContent = file.name;
+          document.getElementById("parse-file").disabled = false;
+        }
+      });
+    }
+
+    // Parse handlers
+    const parseLinkedIn = document.getElementById("parse-linkedin");
+    const parseXing = document.getElementById("parse-xing");
+    const parseIndeed = document.getElementById("parse-indeed");
+    const parseText = document.getElementById("parse-text");
+    const parseFile = document.getElementById("parse-file");
+
+    if (parseLinkedIn) {
+      parseLinkedIn.addEventListener("click", () => {
+        const text = document.getElementById("linkedin-text")?.value;
+        if (text) this.parseAndImport(text, "linkedin");
+      });
+    }
+
+    if (parseXing) {
+      parseXing.addEventListener("click", () => {
+        const text = document.getElementById("xing-text")?.value;
+        if (text) this.parseAndImport(text, "xing");
+      });
+    }
+
+    if (parseIndeed) {
+      parseIndeed.addEventListener("click", () => {
+        const text = document.getElementById("indeed-text")?.value;
+        if (text) this.parseAndImport(text, "indeed");
+      });
+    }
+
+    if (parseText) {
+      parseText.addEventListener("click", () => {
+        const text = document.getElementById("text-import")?.value;
+        if (text) this.parseAndImport(text, "text");
+      });
+    }
+
+    if (parseFile) {
+      parseFile.addEventListener("click", () => {
+        this.showNotification("File parsing requires server-side processing. Please use the text paste option for now.", "info");
+      });
+    }
+  }
+
+  /**
+   * Open import modal for specific source
+   */
+  openImportModal(source) {
+    const modal = document.getElementById("import-modal");
+    const modalTitle = document.getElementById("modal-title");
+    if (!modal || !modalTitle) return;
+
+    // Hide all forms
+    document.querySelectorAll(".import-form").forEach((form) => {
+      form.style.display = "none";
+    });
+
+    // Show relevant form
+    const formId = `import-${source}-form`;
+    const form = document.getElementById(formId);
+    if (form) {
+      form.style.display = "block";
+    }
+
+    // Update title
+    const titles = {
+      linkedin: "Import from LinkedIn",
+      xing: "Import from Xing",
+      indeed: "Import from Indeed",
+      text: "Import from Text",
+      file: "Upload Resume File",
+    };
+    modalTitle.textContent = titles[source] || "Import Resume";
+
+    modal.classList.add("show");
+    modal.style.display = "flex";
+  }
+
+  /**
+   * Close import modal
+   */
+  closeImportModal() {
+    const modal = document.getElementById("import-modal");
+    if (modal) {
+      modal.classList.remove("show");
+      modal.style.display = "none";
+      // Clear all textareas
+      document.querySelectorAll(".import-textarea").forEach((ta) => {
+        ta.value = "";
+      });
+    }
+  }
+
+  /**
+   * Handle file upload
+   */
+  handleFileUpload(file) {
+    this.showNotification(`File "${file.name}" selected. Note: Full parsing requires server-side processing.`, "info");
+  }
+
+  /**
+   * Parse and import text from various sources
+   */
+  parseAndImport(text, source) {
+    try {
+      const parsedData = this.parseResumeText(text, source);
+      this.populateFormFromImport(parsedData);
+      this.closeImportModal();
+      this.showNotification("Resume imported successfully! Please review and adjust the information.", "success");
+    } catch (error) {
+      console.error("Error parsing resume:", error);
+      this.showNotification("Error parsing resume. Please check the format and try again.", "error");
+    }
+  }
+
+  /**
+   * Parse resume text (basic parsing - can be enhanced)
+   */
+  parseResumeText(text, source) {
+    const data = {};
+
+    // Extract name (usually first line or after "Name:")
+    const nameMatch = text.match(/(?:Name|Full Name|FullName)[:\s]+([^\n]+)/i) ||
+                     text.match(/^([A-Z][a-z]+ [A-Z][a-z]+)/);
+    if (nameMatch) data.name = nameMatch[1].trim();
+
+    // Extract email
+    const emailMatch = text.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+    if (emailMatch) data.email = emailMatch[1];
+
+    // Extract phone
+    const phoneMatch = text.match(/(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
+    if (phoneMatch) data.phone = phoneMatch[0];
+
+    // Extract bio/summary
+    const bioMatch = text.match(/(?:Summary|About|Bio|Profile)[:\s]+([^\n]+(?:\n[^\n]+)*?)(?=\n[A-Z]|$)/i);
+    if (bioMatch) data.bio = bioMatch[1].trim();
+
+    // Extract skills
+    const skillsMatch = text.match(/(?:Skills|Technical Skills|Competencies)[:\s]+([^\n]+(?:\n[^\n]+)*?)(?=\n[A-Z]|$)/i);
+    if (skillsMatch) {
+      const skillsText = skillsMatch[1];
+      const skills = skillsText.split(/[,;•\n]/).map(s => s.trim()).filter(Boolean);
+      data.skills = skills;
+    }
+
+    // Extract education
+    const educationMatch = text.match(/(?:Education|Academic)[:\s]+([^\n]+(?:\n[^\n]+)*?)(?=\n(?:Experience|Work|Employment)|$)/i);
+    if (educationMatch) data.education = educationMatch[1].trim();
+
+    // Extract experiences (basic pattern matching)
+    const experienceSection = text.match(/(?:Experience|Work Experience|Employment|Career)[:\s]+([\s\S]*?)(?=\n(?:Education|Skills|$)|$)/i);
+    if (experienceSection) {
+      const expText = experienceSection[1];
+      // Try to parse multiple experiences
+      const experiences = this.parseExperiences(expText);
+      if (experiences.length > 0) {
+        data.experiences = experiences;
+      } else {
+        data.experience = expText.trim();
+      }
+    }
+
+    return data;
+  }
+
+  /**
+   * Parse experiences from text
+   */
+  parseExperiences(text) {
+    const experiences = [];
+    // Split by common patterns (company names, dates, etc.)
+    const lines = text.split(/\n/).filter(line => line.trim());
+    
+    let currentExp = null;
+    lines.forEach((line) => {
+      // Look for company/position patterns
+      const companyMatch = line.match(/(.+?)\s+[-–—]\s*(.+?)\s*(\d{4}|\w+\s+\d{4})/);
+      if (companyMatch) {
+        if (currentExp) experiences.push(currentExp);
+        currentExp = {
+          company: companyMatch[1].trim(),
+          position: companyMatch[2].trim(),
+          description: "",
+        };
+      } else if (currentExp && line.trim()) {
+        currentExp.description += (currentExp.description ? "\n" : "") + line.trim();
+      }
+    });
+    if (currentExp) experiences.push(currentExp);
+
+    return experiences;
+  }
+
+  /**
+   * Populate form from imported data
+   */
+  populateFormFromImport(data) {
+    // Populate basic fields
+    if (data.name) {
+      const nameInput = document.getElementById("name");
+      if (nameInput) nameInput.value = data.name;
+    }
+    if (data.email) {
+      const emailInput = document.getElementById("email");
+      if (emailInput) emailInput.value = data.email;
+    }
+    if (data.phone) {
+      const phoneInput = document.getElementById("phone");
+      if (phoneInput) phoneInput.value = data.phone;
+    }
+    if (data.bio) {
+      const bioInput = document.getElementById("bio");
+      if (bioInput) bioInput.value = data.bio;
+    }
+    if (data.education) {
+      const educationInput = document.getElementById("education");
+      if (educationInput) educationInput.value = data.education;
+    }
+
+    // Populate skills
+    if (data.skills && Array.isArray(data.skills)) {
+      data.skills.forEach((skill) => this.appendSkill(skill));
+    }
+
+    // Populate experiences
+    if (data.experiences && Array.isArray(data.experiences)) {
+      data.experiences.forEach((exp) => this.addExperienceEntry(exp));
+    }
+
+    // Trigger form update
+    const formData = this.collectFormData();
+    this.updateResumePreview(formData);
   }
 }
 

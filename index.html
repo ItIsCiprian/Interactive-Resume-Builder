@@ -6,8 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Interactive Resume Builder</title>
     <link rel="stylesheet" href="style.css"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
+    <header class="main-header">
+        <div class="header-content container">
+            <div class="header-text">
+                <h1 class="header-title">
+                    <span class="title-icon">📄</span>
+                    Interactive Resume Builder
+                </h1>
+                <p class="header-subtitle">Create professional resumes in minutes. Preview, save, and export with ease.</p>
+            </div>
+            <div class="header-decoration">
+                <div class="decoration-circle circle-1"></div>
+                <div class="decoration-circle circle-2"></div>
+                <div class="decoration-circle circle-3"></div>
+            </div>
+        </div>
+    </header>
+
     <main class="resume-builder container">
         <form id="resume-form" class="resume-form">
             <fieldset class="form-section personal-info">
@@ -59,15 +79,57 @@
             <fieldset class="form-section experience-section">
                 <legend>Work Experience</legend>
                 <div class="form-group">
-                    <label for="experience">Work Experience</label>
-                    <textarea id="experience" name="experience" placeholder="Describe your work experience"></textarea>
+                    <div class="section-header">
+                        <label>Work Experience</label>
+                        <button type="button" id="add-experience-btn" class="button button-small">
+                            <span>➕</span> Add Experience
+                        </button>
+                    </div>
+                    <div id="experiences-list" class="experiences-list">
+                        <!-- Experience entries will be dynamically added here -->
+                    </div>
                 </div>
             </fieldset>
 
-            <button type="submit" id="save-resume" class="button button-primary" aria-label="Save Resume">Save Resume</button>
-            <button type="button" id="download-pdf" class="button" aria-label="Download Resume as PDF">Download PDF</button>
-            <button type="button" id="print-resume" class="button" aria-label="Print Resume">Print Resume</button>
-            <button type="button" id="clear-form" class="button" aria-label="Clear Form">Clear Form</button>
+            <fieldset class="form-section import-section">
+                <legend>Import Resume</legend>
+                <div class="form-group">
+                    <p class="import-description">Import your resume from popular platforms or upload a file</p>
+                    <div class="import-options">
+                        <button type="button" id="import-linkedin" class="button button-import" data-source="linkedin">
+                            <span>💼</span> Import from LinkedIn
+                        </button>
+                        <button type="button" id="import-xing" class="button button-import" data-source="xing">
+                            <span>🔗</span> Import from Xing
+                        </button>
+                        <button type="button" id="import-indeed" class="button button-import" data-source="indeed">
+                            <span>💼</span> Import from Indeed
+                        </button>
+                        <button type="button" id="import-file" class="button button-import" data-source="file">
+                            <span>📄</span> Upload File (PDF/DOCX)
+                        </button>
+                        <button type="button" id="import-text" class="button button-import" data-source="text">
+                            <span>📋</span> Paste Text
+                        </button>
+                    </div>
+                    <input type="file" id="file-upload" accept=".pdf,.doc,.docx" style="display: none;">
+                </div>
+            </fieldset>
+
+            <div class="button-group">
+                <button type="submit" id="save-resume" class="button button-primary" aria-label="Save Resume">
+                    <span>💾</span> Save Resume
+                </button>
+                <button type="button" id="download-pdf" class="button" aria-label="Download Resume as PDF">
+                    <span>📥</span> Download PDF
+                </button>
+                <button type="button" id="print-resume" class="button" aria-label="Print Resume">
+                    <span>🖨️</span> Print Resume
+                </button>
+                <button type="button" id="clear-form" class="button button-danger" aria-label="Clear Form">
+                    <span>🗑️</span> Clear Form
+                </button>
+            </div>
         </form>
 
         <section id="resume-preview" class="resume-preview" aria-live="polite">
@@ -82,6 +144,71 @@
             <!-- AI agent information will be dynamically loaded here -->
         </aside>
     </main>
+
+    <!-- Import Modal -->
+    <div id="import-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Import Resume</h3>
+                <button type="button" class="modal-close" id="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="import-linkedin-form" class="import-form" style="display: none;">
+                    <p class="import-instructions">
+                        <strong>How to import from LinkedIn:</strong><br>
+                        1. Go to your LinkedIn profile<br>
+                        2. Click "More" → "Save to PDF" or copy your profile text<br>
+                        3. Paste the content below
+                    </p>
+                    <textarea id="linkedin-text" class="import-textarea" placeholder="Paste your LinkedIn profile content here..."></textarea>
+                    <button type="button" id="parse-linkedin" class="button button-primary">Parse & Import</button>
+                </div>
+                <div id="import-xing-form" class="import-form" style="display: none;">
+                    <p class="import-instructions">
+                        <strong>How to import from Xing:</strong><br>
+                        1. Go to your Xing profile<br>
+                        2. Copy your profile information<br>
+                        3. Paste the content below
+                    </p>
+                    <textarea id="xing-text" class="import-textarea" placeholder="Paste your Xing profile content here..."></textarea>
+                    <button type="button" id="parse-xing" class="button button-primary">Parse & Import</button>
+                </div>
+                <div id="import-indeed-form" class="import-form" style="display: none;">
+                    <p class="import-instructions">
+                        <strong>How to import from Indeed:</strong><br>
+                        1. Go to your Indeed resume<br>
+                        2. Copy the resume content<br>
+                        3. Paste the content below
+                    </p>
+                    <textarea id="indeed-text" class="import-textarea" placeholder="Paste your Indeed resume content here..."></textarea>
+                    <button type="button" id="parse-indeed" class="button button-primary">Parse & Import</button>
+                </div>
+                <div id="import-text-form" class="import-form" style="display: none;">
+                    <p class="import-instructions">
+                        <strong>Paste your resume text:</strong><br>
+                        Paste any resume text below and we'll try to extract the information.
+                    </p>
+                    <textarea id="text-import" class="import-textarea" placeholder="Paste your resume text here..."></textarea>
+                    <button type="button" id="parse-text" class="button button-primary">Parse & Import</button>
+                </div>
+                <div id="import-file-form" class="import-form" style="display: none;">
+                    <p class="import-instructions">
+                        <strong>Upload your resume file:</strong><br>
+                        Supported formats: PDF, DOC, DOCX<br>
+                        <em>Note: File parsing requires server-side processing. For now, please use the text paste option.</em>
+                    </p>
+                    <div class="file-upload-area" id="file-upload-area">
+                        <input type="file" id="file-upload-input" accept=".pdf,.doc,.docx">
+                        <label for="file-upload-input" class="file-upload-label">
+                            <span>📁</span> Choose File or Drag & Drop
+                        </label>
+                        <p class="file-name" id="file-name"></p>
+                    </div>
+                    <button type="button" id="parse-file" class="button button-primary" disabled>Process File</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
     <script src="script.js"></script>
